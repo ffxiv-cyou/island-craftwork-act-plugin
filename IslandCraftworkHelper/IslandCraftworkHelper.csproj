@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <RootNamespace>ffxiv_island_sanctuary_helper</RootNamespace>
+	<ILMergeDebugInfo>false</ILMergeDebugInfo>
+	<Platforms>x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MSBuild.ILMerge.Task" Version="1.1.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PluginCommon\PluginCommon.FFXIV\Lotlab.PluginCommon.FFXIV.csproj" />
+    <ProjectReference Include="..\PluginCommon\PluginCommon.Overlay\Lotlab.PluginCommon.Overlay.csproj" />
+    <ProjectReference Include="..\PluginCommon\PluginCommon\Lotlab.PluginCommon.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Advanced Combat Tracker">
+      <HintPath>..\..\..\..\SDK\ACT\ACTv3\Advanced Combat Tracker.exe</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="OverlayPlugin.Common">
+      <HintPath>..\..\..\..\SDK\ACT\OverlayPlugin\libs\OverlayPlugin.Common.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+
+</Project>
