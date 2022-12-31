@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
-    <RootNamespace>ffxiv_island_sanctuary_helper</RootNamespace>
 	<ILMergeDebugInfo>false</ILMergeDebugInfo>
 	<Platforms>x64</Platforms>
   </PropertyGroup>

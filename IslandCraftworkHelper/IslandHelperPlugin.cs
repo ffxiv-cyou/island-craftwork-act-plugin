@@ -57,16 +57,19 @@ namespace IslandCraftworkHelper
 
             // 注册网络事件
             FFXIV.DataSubscription.NetworkReceived += OnNetworkReceived;
-
-            // 为了简便起见，我们不涉及任何UI相关的内容。
-            // 如果你需要添加自己的页面，请自行编写UserControl。
-            // pluginScreenSpace.Controls.Add(new YourUserControl());
+            FFXIV.DataSubscription.ZoneChanged += OnZoneChanged;
 
             // 直接隐藏掉不需要显示的插件页面
             (pluginScreenSpace.Parent as TabControl).TabPages.Remove(pluginScreenSpace);
 
             // 更新状态标签的内容
-            statusLabel.Text = "插件初始化成功，等待悬浮窗初始化";
+            statusLabel.Text = "插件初始化成功，等待悬浮窗初始化。您可能需要重新加载悬浮窗插件。";
+        }
+
+        private void OnZoneChanged(uint ZoneID, string ZoneName)
+        {
+            this.ZoneID = ZoneID;
+            eventSource?.onZoneChanged(ZoneID);
         }
 
         void IActPluginV1.DeInitPlugin()
@@ -87,13 +90,13 @@ namespace IslandCraftworkHelper
             var registry = container.Resolve<Registry>();
 
             // 注册事件源
-            eventSource = new IslandHelperEventSource(container);
+            eventSource = new IslandHelperEventSource(container, this);
             registry.StartEventSource(eventSource);
 
             // 或者注册悬浮窗预设
             registry.RegisterOverlayPreset2(new IslandHelperOverlayPresent());
 
-            statusLabel.Text = "悬浮窗初始化成功";
+            statusLabel.Text = "悬浮窗初始化成功！等待悬浮窗连接";
         }
 
         void OnNetworkReceived(string connection, long epoch, byte[] message)
@@ -107,22 +110,52 @@ namespace IslandCraftworkHelper
 
             if (eventSource != null)
             {
-                eventSource.FireEvent(packet.ToArray());
+                eventSource.onCraftworkData(packet.ToArray());
             }
+        }
+
+        public uint ZoneID { get; private set; } = 0;
+
+        bool overlayInited = false;
+        public void OnOverlayInit()
+        {
+            if (overlayInited)
+                return;
+            
+            statusLabel.Text = "初始化完毕！您现在可以正常使用插件了。";
+            overlayInited = true;
         }
     }
 
     public class IslandHelperEventSource : EventSourceBase
     {
-        public IslandHelperEventSource(TinyIoCContainer c) : base(c)
+        const string CRAFTWORK_DATA = "onMJICraftworkData";
+        const string ZONE_CHANGED = "onMJIZoneChanged";
+
+        IslandHelperPlugin Plugin { get; }
+
+        public IslandHelperEventSource(TinyIoCContainer c, IslandHelperPlugin plugin) : base(c)
         {
+            Plugin = plugin;
+
             // 设置事件源名称，必须是唯一的
             Name = "IslandCraftworkHelperES";
 
             // 注册数据源名称。此数据源提供给悬浮窗监听
             RegisterEventTypes(new List<string>()
             {
-                "onMJICraftworkData",
+                CRAFTWORK_DATA,
+                ZONE_CHANGED,
+            });
+
+            // 注册事件接收器
+            RegisterEventHandler("RequestMJIZoneState", (obj) =>
+            {
+                Plugin.OnOverlayInit();
+                return JObject.FromObject(new
+                {
+                    zoneID = Plugin.ZoneID
+                });
             });
         }
         public override Control CreateConfigControl()
@@ -138,13 +171,22 @@ namespace IslandCraftworkHelper
         {
         }
 
-        public void FireEvent(string data)
+        public void onCraftworkData(string data)
         {
             // 将数据发送给悬浮窗
             DispatchEvent(JObject.FromObject(new
             {
-                type = "onMJICraftworkData",
+                type = CRAFTWORK_DATA,
                 data = data
+            }));
+        }
+
+        public void onZoneChanged(uint zoneID)
+        {
+            DispatchEvent(JObject.FromObject(new
+            {
+                type = ZONE_CHANGED,
+                zoneID = zoneID
             }));
         }
     }
