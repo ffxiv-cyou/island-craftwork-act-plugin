@@ -4,7 +4,7 @@
     <TargetFramework>net48</TargetFramework>
 	<ILMergeDebugInfo>false</ILMergeDebugInfo>
 	<Platforms>x64</Platforms>
-	<AssemblyVersion>0.1.0</AssemblyVersion>
+	<AssemblyVersion>0.2.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

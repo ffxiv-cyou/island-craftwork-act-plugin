@@ -41,9 +41,10 @@ namespace IslandCraftworkHelper
             var plugins = ActGlobals.oFormActMain.ActPlugins;
             foreach (var item in plugins)
             {
-                if (ACTPluginProxy.IsFFXIVPlugin(item.pluginObj))
+                var obj = item?.pluginObj;
+                if (obj != null && ACTPluginProxy.IsFFXIVPlugin(obj))
                 {
-                    FFXIV = new ACTPluginProxy(item.pluginObj);
+                    FFXIV = new ACTPluginProxy(obj);
                     break;
                 }
             }
