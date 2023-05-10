@@ -10,7 +10,7 @@ namespace IslandCraftworkHelper
 
         public byte currPopPattern;
         public byte nextPopPattern;
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 62)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 78)]
         public byte[] demands;
 
         public bool IsValid()
@@ -26,7 +26,7 @@ namespace IslandCraftworkHelper
 
         public string ToArray()
         {
-            var bytes = new byte[64];
+            var bytes = new byte[demands.Length + 2];
             bytes[0] = currPopPattern;
             bytes[1] = nextPopPattern;
             demands.CopyTo(bytes, 2);
