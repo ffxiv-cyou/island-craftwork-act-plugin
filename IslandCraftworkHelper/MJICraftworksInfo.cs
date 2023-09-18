@@ -3,15 +3,29 @@ using System.Runtime.InteropServices;
 
 namespace IslandCraftworkHelper
 {
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct MJICraftworksInfo
+    public class MJICraftworksInfo
     {
         public IPCHeader ipc; // IPC 包头
 
         public byte currPopPattern;
         public byte nextPopPattern;
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 78)]
         public byte[] demands;
+
+        public MJICraftworksInfo(NetworkParser parser, byte[] packet, uint packetLen)
+        {
+            ipc = parser.ParseAsPacket<IPCHeader>(packet);
+            if (packetLen < 2)
+                return;
+
+            int offset = Marshal.SizeOf<IPCHeader>();
+            currPopPattern = packet[offset++];
+            nextPopPattern = packet[offset++];
+            demands = new byte[packetLen - 2];
+            for (int i = 0; i < packetLen - 2; i++)
+            {
+                demands[i] = packet[offset++];
+            }
+        }
 
         public bool IsValid()
         {

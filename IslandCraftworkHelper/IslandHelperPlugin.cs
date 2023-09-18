@@ -4,6 +4,7 @@ using Lotlab.PluginCommon.FFXIV.Parser;
 using Lotlab.PluginCommon.Overlay;
 using Newtonsoft.Json.Linq;
 using RainbowMage.OverlayPlugin;
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -100,13 +101,16 @@ namespace IslandCraftworkHelper
             statusLabel.Text = "悬浮窗初始化成功！等待悬浮窗连接";
         }
 
+        public uint PacketLen = 80;
+
         void OnNetworkReceived(string connection, long epoch, byte[] message)
         {
             // 判断是否为目标数据包。
-            if (message.Length != Marshal.SizeOf<MJICraftworksInfo>()) return;
+            if (PacketLen < 2) return;
+            if (message.Length != Marshal.SizeOf<IPCHeader>() + PacketLen) return;
 
             // 解析数据包
-            var packet = parser.ParseAsPacket<MJICraftworksInfo>(message);
+            var packet = new MJICraftworksInfo(parser, message, PacketLen);
             if (!packet.IsValid()) return;
 
             if (eventSource != null)
@@ -118,13 +122,16 @@ namespace IslandCraftworkHelper
         public uint ZoneID { get; private set; } = 0;
 
         bool overlayInited = false;
-        public void OnOverlayInit()
+        public void OnOverlayInit(int packetLen)
         {
-            if (overlayInited)
-                return;
-            
-            statusLabel.Text = "初始化完毕！您现在可以正常使用插件了。";
-            overlayInited = true;
+            if (packetLen == 0)
+                packetLen = 80; // 6.3
+
+            PacketLen = (uint)packetLen;
+
+            statusLabel.Text = "初始化完毕！您现在可以正常使用插件了。数据包长度：" + packetLen;
+            if (!overlayInited)
+                overlayInited = true;
         }
     }
 
@@ -152,7 +159,7 @@ namespace IslandCraftworkHelper
             // 注册事件接收器
             RegisterEventHandler("RequestMJIZoneState", (obj) =>
             {
-                Plugin.OnOverlayInit();
+                Plugin.OnOverlayInit(((int)obj["packetLen"]));
                 return JObject.FromObject(new
                 {
                     zoneID = Plugin.ZoneID

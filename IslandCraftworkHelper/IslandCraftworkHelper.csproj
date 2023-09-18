@@ -4,7 +4,7 @@
     <TargetFramework>net48</TargetFramework>
 	<ILMergeDebugInfo>false</ILMergeDebugInfo>
 	<Platforms>x64</Platforms>
-	<AssemblyVersion>0.4.0</AssemblyVersion>
+	<AssemblyVersion>0.5.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,7 +23,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="OverlayPlugin.Common">
-      <HintPath>..\..\..\..\SDK\ACT\OverlayPlugin\libs\OverlayPlugin.Common.dll</HintPath>
+      <HintPath>..\..\..\..\SDK\ACT\OverlayPluginCN\libs\OverlayPlugin.Common.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Windows.Forms" />
